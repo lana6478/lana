@@ -92,8 +92,22 @@
             if (count > 200) {
                 failOutput.textContent += "\nCRITICAL ERROR: ALL FILES REMOVED.\nSYSTEM SHUTDOWN IMMINENT...\n";
                 clearInterval(interval);
+
+                // Delay before "shutdown"
+                setTimeout(closePage, 1500);
             }
         }, 30);
+    }
+
+    function closePage() {
+        // Try to actually close the tab
+        window.open('', '_self');
+        window.close();
+
+        // Fallback (works everywhere): redirect to a blank page
+        setTimeout(() => {
+            window.location.href = "about:blank";
+        }, 200);
     }
 </script>
 
