@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal Login</title>
+    <title>Secure Terminal</title>
     <style>
         body {
             background-color: black;
@@ -16,32 +16,28 @@
             border: none;
             border-bottom: 1px solid #00ff00;
             color: #00ff00;
-            font-family: inherit;
-            font-size: 1rem;
             width: 300px;
             outline: none;
+            font-family: inherit;
         }
-        #content, #failScreen {
+        #content, #failScreen, #virusScreen {
             display: none;
             margin-top: 20px;
         }
-        #error {
-            color: red;
-        }
-        #failOutput {
+        #failOutput, #virusOutput {
             white-space: pre;
             height: 70vh;
             overflow-y: auto;
             border: 1px solid #00ff00;
             padding: 10px;
         }
+        #error { color: red; }
     </style>
 </head>
 <body>
 
 <h2>ACCESS REQUIRED</h2>
 <p>Enter password:</p>
-
 <input id="passwordInput" type="password" placeholder="Password...">
 <p id="error"></p>
 
@@ -54,12 +50,19 @@
     <div id="failOutput"></div>
 </div>
 
+<div id="virusScreen">
+    <h2 style="color:#ff0000;">⚠ UNAUTHORIZED SOFTWARE DETECTED</h2>
+    <div id="virusOutput"></div>
+</div>
+
 <script>
     const passwordField = document.getElementById("passwordInput");
     const errorMsg = document.getElementById("error");
     const content = document.getElementById("content");
     const failScreen = document.getElementById("failScreen");
     const failOutput = document.getElementById("failOutput");
+    const virusScreen = document.getElementById("virusScreen");
+    const virusOutput = document.getElementById("virusOutput");
 
     passwordField.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
@@ -67,11 +70,10 @@
                 errorMsg.textContent = "";
                 content.style.display = "block";
 
-                // Fake delay before "system failure"
                 setTimeout(() => {
                     content.style.display = "none";
                     failScreen.style.display = "block";
-                    startFakeDeletion();
+                    startFailure();
                 }, 1500);
 
             } else {
@@ -80,31 +82,68 @@
         }
     });
 
-    function startFakeDeletion() {
+    function startFailure() {
         let count = 0;
-
         const interval = setInterval(() => {
             const fakeFile = `/system/core/sec/file_${Math.floor(Math.random() * 99999)}.dll`;
             failOutput.textContent += `DELETING: ${fakeFile}\n`;
             failOutput.scrollTop = failOutput.scrollHeight;
-
             count++;
-            if (count > 200) {
-                failOutput.textContent += "\nCRITICAL ERROR: ALL FILES REMOVED.\nSYSTEM SHUTDOWN IMMINENT...\n";
-                clearInterval(interval);
 
-                // Delay before "shutdown"
-                setTimeout(closePage, 1500);
+            if (count > 150) {
+                clearInterval(interval);
+                failOutput.textContent += "\nSYSTEM BREACH DETECTED...\nINSTALLING UNKNOWN SOFTWARE...\n";
+
+                setTimeout(() => {
+                    failScreen.style.display = "none";
+                    virusScreen.style.display = "block";
+                    startVirusMessages();
+                }, 1500);
             }
         }, 30);
     }
 
+    function typeLine(text, speed, callback) {
+        let i = 0;
+        const typer = setInterval(() => {
+            virusOutput.textContent += text[i];
+            i++;
+            virusOutput.scrollTop = virusOutput.scrollHeight;
+            if (i >= text.length) {
+                clearInterval(typer);
+                if (callback) setTimeout(callback, 500);
+            }
+        }, speed);
+    }
+
+    function startVirusMessages() {
+        const messages = [
+            "Hello there...",
+            "Did you really think this was a normal login?",
+            "I've been watching your system for a while now.",
+            "You let me in.",
+            "And now I’m in control.",
+            "Deleting remaining protections...",
+            "Shutting everything down..."
+        ];
+
+        let index = 0;
+        function nextMessage() {
+            if (index < messages.length) {
+                typeLine(messages[index] + "\n", 40, nextMessage);
+                index++;
+            } else {
+                setTimeout(closePage, 2000);
+            }
+        }
+        nextMessage();
+    }
+
     function closePage() {
-        // Try to actually close the tab
+        // Try to close the tab
         window.open('', '_self');
         window.close();
-
-        // Fallback (works everywhere): redirect to a blank page
+        // Fallback
         setTimeout(() => {
             window.location.href = "about:blank";
         }, 200);
