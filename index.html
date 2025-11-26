@@ -9,26 +9,31 @@
             color: #00ff00;
             font-family: "Courier New", monospace;
             padding: 20px;
+            overflow: hidden;
         }
-
         input {
             background: none;
             border: none;
             border-bottom: 1px solid #00ff00;
             color: #00ff00;
-            font-family: "Courier New", monospace;
+            font-family: inherit;
             font-size: 1rem;
             width: 300px;
             outline: none;
         }
-
-        #content {
-            margin-top: 20px;
+        #content, #failScreen {
             display: none;
+            margin-top: 20px;
         }
-
         #error {
             color: red;
+        }
+        #failOutput {
+            white-space: pre;
+            height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #00ff00;
+            padding: 10px;
         }
     </style>
 </head>
@@ -41,26 +46,55 @@
 <p id="error"></p>
 
 <div id="content">
-    <h2>ACCESS GRANTED</h2>
-    <p>Welcome to the rest of the website.</p>
+    <p>Verifying system integrity...</p>
+</div>
+
+<div id="failScreen">
+    <h2 style="color:red;">!! SYSTEM FAILURE DETECTED !!</h2>
+    <div id="failOutput"></div>
 </div>
 
 <script>
     const passwordField = document.getElementById("passwordInput");
     const errorMsg = document.getElementById("error");
     const content = document.getElementById("content");
+    const failScreen = document.getElementById("failScreen");
+    const failOutput = document.getElementById("failOutput");
 
     passwordField.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             if (passwordField.value === "parksideisshit") {
                 errorMsg.textContent = "";
                 content.style.display = "block";
+
+                // Fake delay before "system failure"
+                setTimeout(() => {
+                    content.style.display = "none";
+                    failScreen.style.display = "block";
+                    startFakeDeletion();
+                }, 1500);
+
             } else {
                 errorMsg.textContent = "ACCESS DENIED";
-                content.style.display = "none";
             }
         }
     });
+
+    function startFakeDeletion() {
+        let count = 0;
+
+        const interval = setInterval(() => {
+            const fakeFile = `/system/core/sec/file_${Math.floor(Math.random() * 99999)}.dll`;
+            failOutput.textContent += `DELETING: ${fakeFile}\n`;
+            failOutput.scrollTop = failOutput.scrollHeight;
+
+            count++;
+            if (count > 200) {
+                failOutput.textContent += "\nCRITICAL ERROR: ALL FILES REMOVED.\nSYSTEM SHUTDOWN IMMINENT...\n";
+                clearInterval(interval);
+            }
+        }, 30);
+    }
 </script>
 
 </body>
