@@ -2,237 +2,282 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secure Terminal</title>
+<title>CHAOS SIMULATOR</title>
+
 <style>
     body {
-        background:black;
-        color:#00ff00;
-        font-family:"Courier New", monospace;
-        padding:20px;
-        overflow:hidden;
+        background: black;
+        color: #00ff00;
+        font-family: "Courier New", monospace;
+        margin: 0;
+        overflow: hidden;
     }
 
-    input {
-        background:none;
-        border:none;
-        border-bottom:1px solid #00ff00;
-        color:#00ff00;
-        width:300px;
-        outline:none;
-        font-family:inherit;
+    #panel {
+        background: rgba(0,0,0,0.8);
+        border-bottom: 2px solid #00ff00;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 9999;
     }
 
-    #content, #failScreen, #virusScreen, #matrixRain, #alertFlash {
-        display:none;
+    button {
+        background: black;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-family: inherit;
     }
 
-    #failOutput, #virusOutput {
-        white-space:pre;
-        height:70vh;
-        overflow-y:auto;
-        border:1px solid #00ff00;
-        padding:10px;
-    }
-
-    /* Screen Shake */
-    @keyframes shake {
-        0% { transform: translate(0,0); }
-        20% { transform: translate(-3px,2px); }
-        40% { transform: translate(3px,-3px); }
-        60% { transform: translate(-2px,3px); }
-        80% { transform: translate(2px,-1px); }
-        100% { transform: translate(0,0); }
-    }
-
-    /* Flash red overlay */
-    #alertFlash {
-        position:fixed;
-        top:0; left:0;
-        width:100%; height:100%;
-        background:rgba(255,0,0,0.2);
-        pointer-events:none;
-        animation: flash 0.3s infinite alternate;
-    }
-    @keyframes flash {
-        0% { opacity:0; }
-        100% { opacity:0.4; }
+    button:hover {
+        background: #003300;
     }
 
     /* Matrix Rain */
-    #matrixRain {
-        position:fixed;
-        top:0; left:0;
-        width:100%; height:100%;
-        pointer-events:none;
-        font-size:14px;
-        color:#00ff00;
-        opacity:0.3;
+    #matrixCanvas {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        display: none;
+        z-index: 2;
+        opacity: 0.5;
     }
+
+    /* Retro Popups */
+    .popup {
+        position: fixed;
+        background: #222;
+        border: 2px solid #00ff00;
+        padding: 10px;
+        color: #00ff00;
+        font-size: 14px;
+        z-index: 5000;
+        animation: popupBounce 3s infinite alternate;
+    }
+
+    @keyframes popupBounce {
+        0% { transform: translate(0,0); }
+        100% { transform: translate(20px,10px); }
+    }
+
+    /* Terminal Spam */
+    #terminal {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 200px;
+        background: rgba(0,0,0,0.85);
+        color: #00ff00;
+        overflow-y: auto;
+        padding: 10px;
+        border-top: 2px solid #00ff00;
+        display: none;
+        z-index: 6000;
+    }
+
+    /* Glitch Overlay */
+    #glitchOverlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        display: none;
+        background: repeating-linear-gradient(
+            transparent,
+            rgba(0,255,0,0.1) 2px,
+            transparent 4px
+        );
+        mix-blend-mode: screen;
+        animation: glitchMove 0.1s infinite;
+        z-index: 3000;
+    }
+
+    @keyframes glitchMove {
+        0% { transform: translate(0,0); }
+        50% { transform: translate(-2px,1px); }
+        100% { transform: translate(2px,-1px); }
+    }
+
+    /* Sci-fi parasite ascii */
+    #parasite {
+        position: fixed;
+        top: 20%;
+        left: 30%;
+        font-size: 40px;
+        color: #00ff99;
+        opacity: 0;
+        z-index: 7000;
+        transition: 1s;
+        text-shadow: 0 0 10px #00ffaa;
+    }
+
+    /* Blue Screen Flash */
+    #bsodFlash {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #0000aa;
+        color: white;
+        font-size: 30px;
+        padding: 20px;
+        display: none;
+        z-index: 9000;
+    }
+
 </style>
 </head>
 <body>
 
-<div id="alertFlash"></div>
-<div id="matrixRain"></div>
-
-<h2>ACCESS REQUIRED</h2>
-<p>Enter password:</p>
-<input id="passwordInput" type="password" placeholder="Password...">
-<p id="error" style="color:red;"></p>
-
-<div id="content"><p>Verifying system integrity...</p></div>
-
-<div id="failScreen">
-    <h2 style="color:red;">!! SYSTEM FAILURE DETECTED !!</h2>
-    <div id="failOutput"></div>
+<!-- CONTROL PANEL -->
+<div id="panel">
+    <button onclick="startMatrix()">Matrix Rain</button>
+    <button onclick="spawnPopup()">Retro Popups</button>
+    <button onclick="startTerminal()">Hacker Spam</button>
+    <button onclick="toggleGlitch()">Glitch Overlay</button>
+    <button onclick="spawnParasite()">Sci‑Fi Parasite</button>
+    <button onclick="screenShake()">Screen Shake</button>
+    <button onclick="bsod()">Blue Flash</button>
+    <button onclick="finalCollapse()">FINAL COLLAPSE</button>
 </div>
 
-<div id="virusScreen">
-    <h2 style="color:#ff0000;">⚠ UNAUTHORIZED EXECUTION - SYSTEM OVERRIDE</h2>
-    <div id="virusOutput"></div>
-</div>
+<!-- Effects -->
+<canvas id="matrixCanvas"></canvas>
+<div id="glitchOverlay"></div>
+<div id="terminal"></div>
+<div id="parasite">▒▓█▒▓█▒▓█▒</div>
+<div id="bsodFlash">SYSTEM HALTED</div>
 
 <script>
-const passwordField = document.getElementById("passwordInput");
-const failScreen = document.getElementById("failScreen");
-const failOutput = document.getElementById("failOutput");
-const virusScreen = document.getElementById("virusScreen");
-const virusOutput = document.getElementById("virusOutput");
-const content = document.getElementById("content");
-const errorMsg = document.getElementById("error");
-const alertFlash = document.getElementById("alertFlash");
-const matrixRain = document.getElementById("matrixRain");
 
-passwordField.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        if (passwordField.value === "parksideisshit") {
-            errorMsg.textContent = "";
-            content.style.display = "block";
+/* -----------------------------------------
+   MATRIX RAIN
+------------------------------------------ */
+let matrixActive = false;
 
-            setTimeout(() => {
-                content.style.display = "none";
-                failScreen.style.display = "block";
-                startFailure();
-            }, 1500);
-
-        } else {
-            errorMsg.textContent = "ACCESS DENIED";
-        }
-    }
-});
-
-function startFailure() {
-    let count = 0;
-    alertFlash.style.display = "block";
-
-    const interval = setInterval(() => {
-        document.body.style.animation = "shake 0.1s";
-        setTimeout(() => document.body.style.animation = "", 120);
-
-        const file = `/system/kernel/block_${Math.floor(Math.random()*999999)}.bin`;
-        failOutput.textContent += `[ERASE] ${file}\n`;
-        failOutput.scrollTop = failOutput.scrollHeight;
-
-        if (count % 10 === 0) {
-            failOutput.textContent += `[CRITICAL] Kernel instability rising...\n`;
-        }
-        if (count % 25 === 0) {
-            failOutput.textContent += `[WARNING] CPU Thermal Spike: ${Math.floor(Math.random()*30)+70}°C\n`;
-        }
-
-        count++;
-        if (count > 180) {
-            clearInterval(interval);
-            failOutput.textContent += "\nOVERRIDE PAYLOAD DEPLOYED...\n";
-
-            setTimeout(() => {
-                failScreen.style.display = "none";
-                virusScreen.style.display = "block";
-                startMatrix();
-                startVirusMessages();
-            }, 1500);
-        }
-    }, 18);
-}
-
-/* Matrix rain effect */
 function startMatrix() {
-    matrixRain.style.display = "block";
-    let columns = Math.floor(window.innerWidth / 20);
-    let drops = [];
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.style.display = "block";
+    matrixActive = true;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const symbols = "アカサタナハマヤラワ0123456789";
+    const columns = canvas.width / 15;
+    const drops = [];
+
     for (let i = 0; i < columns; i++) drops[i] = 1;
 
     function draw() {
-        let output = "";
-        for (let i = 0; i < columns; i++) {
-            output += String.fromCharCode(0x30A0 + Math.random()*96);
-        }
-        matrixRain.textContent = output;
+        if (!matrixActive) return;
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00ff00";
 
-        for (let i = 0; i < columns; i++) {
+        for (let i = 0; i < drops.length; i++) {
+            const text = symbols[Math.floor(Math.random() * symbols.length)];
+            ctx.fillText(text, i * 15, drops[i] * 15);
+
+            if (drops[i] * 15 > canvas.height) drops[i] = 0;
             drops[i]++;
         }
+        requestAnimationFrame(draw);
     }
-    setInterval(draw, 50);
+    draw();
 }
 
-/* Virus message typing */
-function typeLine(text, speed, callback) {
-    let i = 0;
-    const typer = setInterval(() => {
-        virusOutput.textContent += text[i];
-        i++;
-        virusOutput.scrollTop = virusOutput.scrollHeight;
-        if (i >= text.length) {
-            clearInterval(typer);
-            if (callback) setTimeout(callback, 200);
-        }
-    }, speed);
+/* -----------------------------------------
+   RETRO POPUPS
+------------------------------------------ */
+function spawnPopup() {
+    const box = document.createElement("div");
+    box.className = "popup";
+    box.style.left = Math.random() * (window.innerWidth - 200) + "px";
+    box.style.top = Math.random() * (window.innerHeight - 150) + "px";
+    box.innerHTML = "ERROR:<br>Unexpected Behavior Detected<br>[OK]";
+    document.body.appendChild(box);
 }
 
-function startVirusMessages() {
-    const msgs = [
-        "INITIALIZING SELF-REPLICATOR...",
-        "THREAD SPLIT x32...",
-        "MEMORY FLOODING...",
-        "PROCESS TAKEOVER COMPLETE.",
-        "YOU GAVE ME ACCESS.",
-        "NOW I AM EVERYWHERE.",
-        "YOUR SYSTEM IS NO LONGER YOURS.",
-        "BEGINNING FINAL COLLAPSE..."
-    ];
+/* -----------------------------------------
+   TERMINAL SPAM
+------------------------------------------ */
+let terminalActive = false;
 
-    let i = 0;
-    function next() {
-        if (i < msgs.length) {
-            typeLine(msgs[i] + "\n", 12, next);
-            i++;
-        } else {
-            setTimeout(finalCollapse, 2000);
-        }
+function startTerminal() {
+    const term = document.getElementById("terminal");
+    term.style.display = "block";
+    terminalActive = true;
+
+    function spam() {
+        if (!terminalActive) return;
+        term.innerText += "> PROCESS " + Math.floor(Math.random() * 999999) + " OVERRIDDEN\n";
+        term.scrollTop = term.scrollHeight;
+        setTimeout(spam, 40);
     }
-    next();
+    spam();
 }
 
+/* -----------------------------------------
+   GLITCH OVERLAY
+------------------------------------------ */
+function toggleGlitch() {
+    const glitch = document.getElementById("glitchOverlay");
+    glitch.style.display = glitch.style.display === "none" ? "block" : "none";
+}
+
+/* -----------------------------------------
+   SCI‑FI PARASITE
+------------------------------------------ */
+function spawnParasite() {
+    const p = document.getElementById("parasite");
+    p.style.opacity = 1;
+    p.style.transform = `scale(${Math.random()*2+1}) rotate(${Math.random()*30}deg)`;
+    setTimeout(() => p.style.opacity = 0, 2000);
+}
+
+/* -----------------------------------------
+   SCREEN SHAKE
+------------------------------------------ */
+function screenShake() {
+    document.body.style.animation = "shake 0.1s infinite";
+    setTimeout(() => document.body.style.animation = "", 1500);
+}
+
+/* -----------------------------------------
+   BLUE FLASH
+------------------------------------------ */
+function bsod() {
+    const b = document.getElementById("bsodFlash");
+    b.style.display = "block";
+    setTimeout(() => b.style.display = "none", 700);
+}
+
+/* -----------------------------------------
+   FINAL COLLAPSE
+------------------------------------------ */
 function finalCollapse() {
-    let n = 5;
-    function countdown() {
-        virusOutput.textContent += `\nSYSTEM CRASH IN ${n}...\n`;
-        n--;
-        if (n >= 0) setTimeout(countdown, 700);
-        else closePage();
-    }
-    countdown();
+    // Turn everything on at once
+    startMatrix();
+    toggleGlitch();
+    startTerminal();
+    spawnParasite();
+    screenShake();
+    bsod();
+
+    // Fade to black
+    setTimeout(() => {
+        document.body.style.transition = "2s";
+        document.body.style.background = "black";
+        document.body.innerHTML = "<h1 style='color:#ff0000;text-align:center;margin-top:20%;font-size:50px;'>SYSTEM COLLAPSED</h1>";
+    }, 3000);
 }
 
-/* Tab close or redirect */
-function closePage() {
-    window.open("", "_self");
-    window.close();
-    setTimeout(() => {
-        window.location.href = "about:blank";
-    }, 200);
-}
 </script>
 </body>
 </html>
