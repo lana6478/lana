@@ -20,7 +20,7 @@
             outline: none;
             font-family: inherit;
         }
-        #content, #failScreen, #virusScreen {
+        #content, #failScreen, #virusScreen, #glitch {
             display: none;
             margin-top: 20px;
         }
@@ -31,10 +31,35 @@
             border: 1px solid #00ff00;
             padding: 10px;
         }
+        #glitch {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                transparent 0px,
+                rgba(0,255,0,0.03) 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            mix-blend-mode: screen;
+            animation: glitchAnim 0.2s infinite;
+        }
+
+        @keyframes glitchAnim {
+            0% { transform: translate(0px, 0px); opacity: .1; }
+            30% { transform: translate(-2px, 1px); opacity: .2; }
+            60% { transform: translate(2px, -1px); opacity: .15; }
+            100% { transform: translate(0px, 0px); opacity: .1; }
+        }
+
         #error { color: red; }
     </style>
 </head>
 <body>
+
+<div id="glitch"></div>
 
 <h2>ACCESS REQUIRED</h2>
 <p>Enter password:</p>
@@ -51,7 +76,7 @@
 </div>
 
 <div id="virusScreen">
-    <h2 style="color:#ff0000;">⚠ UNAUTHORIZED SOFTWARE DETECTED</h2>
+    <h2 style="color:#ff0000;">⚠ UNAUTHORIZED PROGRAM EXECUTED</h2>
     <div id="virusOutput"></div>
 </div>
 
@@ -84,15 +109,21 @@
 
     function startFailure() {
         let count = 0;
+
         const interval = setInterval(() => {
-            const fakeFile = `/system/core/sec/file_${Math.floor(Math.random() * 99999)}.dll`;
-            failOutput.textContent += `DELETING: ${fakeFile}\n`;
+            const fakeFile = `/system/root/core/file_${Math.floor(Math.random() * 999999)}.sys`;
+            failOutput.textContent += `[CORRUPT] Removing: ${fakeFile}\n`;
             failOutput.scrollTop = failOutput.scrollHeight;
+
             count++;
 
-            if (count > 150) {
+            if (count % 15 === 0) {
+                failOutput.textContent += `[SCAN] Integrity collapse detected...\n`;
+            }
+
+            if (count > 200) {
                 clearInterval(interval);
-                failOutput.textContent += "\nSYSTEM BREACH DETECTED...\nINSTALLING UNKNOWN SOFTWARE...\n";
+                failOutput.textContent += "\nSYSTEM OVERRIDE INITIATED...\n";
 
                 setTimeout(() => {
                     failScreen.style.display = "none";
@@ -100,7 +131,7 @@
                     startVirusMessages();
                 }, 1500);
             }
-        }, 30);
+        }, 20);
     }
 
     function typeLine(text, speed, callback) {
@@ -111,39 +142,45 @@
             virusOutput.scrollTop = virusOutput.scrollHeight;
             if (i >= text.length) {
                 clearInterval(typer);
-                if (callback) setTimeout(callback, 500);
+                if (callback) setTimeout(callback, 300);
             }
         }, speed);
     }
 
     function startVirusMessages() {
         const messages = [
-            "Hello there...",
-            "Did you really think this was a normal login?",
-            "I've been watching your system for a while now.",
-            "You let me in.",
-            "And now I’m in control.",
-            "Deleting remaining protections...",
-            "Shutting everything down..."
+            "INSTALLATION COMPLETE.",
+            "I am inside your system now.",
+            "You opened the door.",
+            "You shouldn't have trusted this terminal.",
+            "I am spreading...",
+            "Every defense is gone.",
+            "Your system belongs to me now.",
+            "Shutdown sequence starting..."
         ];
 
         let index = 0;
         function nextMessage() {
             if (index < messages.length) {
-                typeLine(messages[index] + "\n", 40, nextMessage);
+                typeLine(messages[index] + "\n", 20, nextMessage);
                 index++;
             } else {
-                setTimeout(closePage, 2000);
+                setTimeout(finalGlitch, 1500);
             }
         }
         nextMessage();
     }
 
+    function finalGlitch() {
+        virusOutput.textContent += "\n>>> SYSTEM COLLAPSE IN 3...\n";
+        setTimeout(() => virusOutput.textContent += "2...\n", 700);
+        setTimeout(() => virusOutput.textContent += "1...\n", 1400);
+        setTimeout(closePage, 2400);
+    }
+
     function closePage() {
-        // Try to close the tab
         window.open('', '_self');
         window.close();
-        // Fallback
         setTimeout(() => {
             window.location.href = "about:blank";
         }, 200);
