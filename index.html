@@ -5,22 +5,102 @@
     <title>Best Teacher</title>
     <style>
         body {
+            margin: 0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
         }
+
         h1 {
-            color: #333;
+            position: relative;
+            z-index: 2;
             font-size: 3rem;
+            color: #333;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <h1>Mr Steventon is the best</h1>
+
+<h1>Mr Steventon is the best</h1>
+<canvas id="confetti"></canvas>
+
+<script>
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const confettiCount = 300;
+    const confetti = [];
+
+    for (let i = 0; i < confettiCount; i++) {
+        confetti.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            r: Math.random() * 6 + 4,
+            d: Math.random() * confettiCount,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            tilt: Math.random() * 10 - 10,
+            tiltAngle: 0,
+            tiltAngleIncrement: Math.random() * 0.07 + 0.05
+        });
+    }
+
+    function drawConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        confetti.forEach(c => {
+            ctx.beginPath();
+            ctx.lineWidth = c.r;
+            ctx.strokeStyle = c.color;
+            ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+            ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+            ctx.stroke();
+        });
+
+        updateConfetti();
+    }
+
+    function updateConfetti() {
+        confetti.forEach(c => {
+            c.y += Math.cos(c.d) + 3;
+            c.x += Math.sin(c.d);
+            c.tiltAngle += c.tiltAngleIncrement;
+            c.tilt = Math.sin(c.tiltAngle) * 15;
+
+            if (c.y > canvas.height) {
+                c.y = -20;
+                c.x = Math.random() * canvas.width;
+            }
+        });
+    }
+
+    function animate() {
+        drawConfetti();
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
 </body>
 </html>
     
