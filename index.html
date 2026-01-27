@@ -43,7 +43,8 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const confettiCount = 300;
+    /* ---------------- CONFETTI ---------------- */
+    const confettiCount = 250;
     const confetti = [];
 
     for (let i = 0; i < confettiCount; i++) {
@@ -59,9 +60,34 @@
         });
     }
 
-    function drawConfetti() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    /* ---------------- MATHS EQUATIONS ---------------- */
+    const equationsList = [
+        "x² + y² = r²",
+        "E = mc²",
+        "a² + b² = c²",
+        "sin(x)",
+        "cos(x)",
+        "tan(θ)",
+        "π ≈ 3.14159",
+        "∫ f(x) dx",
+        "y = mx + c",
+        "log(x)"
+    ];
 
+    const equations = [];
+
+    for (let i = 0; i < 20; i++) {
+        equations.push({
+            text: equationsList[Math.floor(Math.random() * equationsList.length)],
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            speed: Math.random() * 1.5 + 0.5,
+            size: Math.random() * 16 + 18,
+            opacity: Math.random() * 0.5 + 0.5
+        });
+    }
+
+    function drawConfetti() {
         confetti.forEach(c => {
             ctx.beginPath();
             ctx.lineWidth = c.r;
@@ -70,8 +96,6 @@
             ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
             ctx.stroke();
         });
-
-        updateConfetti();
     }
 
     function updateConfetti() {
@@ -88,8 +112,32 @@
         });
     }
 
+    function drawEquations() {
+        equations.forEach(eq => {
+            ctx.font = `${eq.size}px Arial`;
+            ctx.fillStyle = `rgba(0, 0, 0, ${eq.opacity})`;
+            ctx.fillText(eq.text, eq.x, eq.y);
+        });
+    }
+
+    function updateEquations() {
+        equations.forEach(eq => {
+            eq.y += eq.speed;
+
+            if (eq.y > canvas.height) {
+                eq.y = -30;
+                eq.x = Math.random() * canvas.width;
+                eq.text = equationsList[Math.floor(Math.random() * equationsList.length)];
+            }
+        });
+    }
+
     function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawConfetti();
+        drawEquations();
+        updateConfetti();
+        updateEquations();
         requestAnimationFrame(animate);
     }
 
